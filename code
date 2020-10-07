@@ -1,0 +1,138 @@
+# TASK 4 
+# IRISDATASET
+### Identifying the  following data to study:
+### 1)Id having numerical values
+### 2)SepalLengthCm  in centimeters
+### 3)SepalWidthCm in centimeters
+### 4)PetalLengthCm in centimeters
+### 5)PetalLengthCm in centimeters 
+### 6)PetalWidthCm in centimeters
+### 7)Species having catogorial data ( setosa, versicolour and virginica ) 
+# Alogorithms used KNN , Decisiontree.
+
+#import libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+data=pd.read_csv('Iris123.csv')
+
+data.head()
+data.tail()
+data.shape
+#dropping the unneccessary column
+data.drop('Id',inplace=True,axis=1)
+data.head()
+
+data.info()
+data.describe()
+
+
+data['Species'].unique()
+
+classes={'Iris-setosa':0,'Iris-versicolor':1,'Iris-virginica':2}
+data.replace({'Species':classes},inplace=True)
+data.head()
+#plotting the pairplot
+sns.pairplot(data)
+sns.pairplot(data,hue='Species',markers=['o','s','D'])
+
+#extracting the x and y variables
+x=data.iloc[:,:-1].values
+y=data.iloc[:,-1].values
+
+x
+y
+#split the dataset into train and testing
+from sklearn.model_selection import train_test_split as tts
+x_train,x_test,y_train,y_test=tts(x,y,test_size=0.2,random_state=18)
+x_train
+y_train
+#check the size of the train and test
+print(x_train.shape)
+print(x_test.shape)
+print(y_train.shape)
+print(y_test.shape)
+
+#normalizing value
+from sklearn .preprocessing import StandardScaler as ss
+scaler = ss()
+scaler.fit(x_train)
+x_train=scaler.transform(x_train)
+x_test= scaler.transform(x_test)
+#logistic regression
+from sklearn.linear_model import LogisticRegression as loreg
+logistic=loreg()
+logistic.fit(x_train,y_train)
+
+y_pred = logistic.predict(x_test)
+print(y_pred)
+#checking the accurancy
+print('Accuracy of LogisticRegression on Iris dataset is{}'.format(logistic.score(x_test,y_test))) 
+#another way to checking the accurancy
+from sklearn.metrics import confusion_matrix, accuracy_score
+print(accuracy_score(y_test,y_pred))
+cm = confusion_matrix(y_test,y_pred)
+print(cm)
+
+#knn 
+from sklearn.neighbors import KNeighborsClassifier as KNN
+KNN=KNN()
+KNN.fit(x_train,y_train)
+print('Accuracy of KNN on Iris dataset is {}'.format(KNN.score(x_test,y_test)))
+
+z = np.append(arr=y_pred.reshape(len(y_pred),1), values=y_test.reshape(len(y_test),1),axis=1)
+print(z)
+
+# Printing the accuracy score and the confusion matrix
+from sklearn.metrics import accuracy_score,confusion_matrix
+acc = accuracy_score(y_test,y_pred)
+cm = confusion_matrix(y_test,y_pred)
+print(acc)
+print(cm)
+
+#creating and traing the decision tree
+from sklearn.tree import DecisionTreeRegressor 
+regressor = DecisionTreeRegressor(random_state=0)
+regressor.fit(x_train,y_train)
+y_pred=regressor.predict(x_test)
+y_pred_train=regressor.predict(x_train)
+
+print('accurancy',accuracy_score(y_test,y_pred))
+
+#r2 and mse model performance
+from sklearn.metrics import mean_squared_error,r2_score
+mse=mean_squared_error(y_test,y_pred)
+r2_score(y_train,y_pred_train)
+mse
+#plotting decision tree
+from sklearn import tree 
+dot_data=tree.export_graphviz(regressor,out_file=None)
+from IPython.display import Image
+import pydotplus
+graph=pydotplus.graph_from_dot_data(dot_data)
+Image(graph.create_png())
+
+regressor1=tree.DecisionTreeRegressor(max_depth=3)
+regressor1.fit(x_train,y_train)
+dot_data=tree.export_graphviz(regressor1,out_file=None,filled=True)
+graph1=pydotplus.graph_from_dot_data(dot_data)
+Image(graph1.create_png())
+
+regressor2=tree.DecisionTreeRegressor(min_samples_split=40)
+regressor2.fit(x_train,y_train)
+dot_data=tree.export_graphviz(regressor2,out_file=None,filled=True)
+graph2=pydotplus.graph_from_dot_data(dot_data)
+Image(graph2.create_png())
+
+regressor3=tree.DecisionTreeRegressor(min_samples_leaf=25)
+regressor3.fit(x_train,y_train)
+dot_data=tree.export_graphviz(regressor3,out_file=None,filled=True)
+graph3=pydotplus.graph_from_dot_data(dot_data)
+Image(graph3.create_png())
+
+# we can assume that the KNN accurancy 0.9333333333333333 , mean_squared_error accurancy is 0.03333333333333333, R2 score is 0.9542682926829268 and  Decision tree accurancy is 0.966666
+# Hence we can predict that the Decision tree has the better accurancy than the KNN
+
+r2_score(y_test,y_pred)
